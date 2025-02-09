@@ -2,7 +2,6 @@
 
 use App\Http\Requests\TaskRequest;
 use App\Models\Task;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -12,11 +11,11 @@ Route::get('/', function (){
 
 Route::get('/tasks', function () {
     return view('index',[
-        'tasks' => Task::latest()->get()
+        'tasks' => Task::latest()->paginate(10)
     ]);
 })->name('tasks.index');
 
-Route::view('/tasks/create','create');
+Route::view('/tasks/create','create')->name("tasks.create");
 
 Route::get('/tasks/{task}', function (Task $task) {
     return view('show',['task' => $task]);
@@ -26,7 +25,7 @@ Route::get('/tasks/{task}/edit', function (Task $task) {
     return view('edit',[
         'task' => $task
     ]);
-});
+})->name('tasks.edit');
 
 Route::post('/tasks',function (TaskRequest $request) {
 //    $data = $request->validated();
@@ -58,4 +57,9 @@ Route::delete('/tasks/{task}',function (Task $task) {
         ->with('success','Task deleted successfully');
 })->name('tasks.delete');
 
+
+Route::put('/tasks/{task}/toggle-complete',function (Task $task) {
+    $task->toggleComplete();
+    return redirect()->back()->with('success','Task status updated successfully');
+})->name('tasks.toggle-complete');
 
